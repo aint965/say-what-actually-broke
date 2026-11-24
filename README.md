@@ -11,7 +11,7 @@
 
 ## How it works
 
-`main.ts` (Node 22) holds the single error line as a constant, validates it first — 1–200 characters, a single line, no surrounding whitespace, no trailing newline — then creates `/output` with `mkdirSync` and writes exactly that line to `/output/entry.txt`. It makes no network access and reads nothing outside this repository, so running it twice produces a byte-identical file.
+`main.ts` (Node 22) holds the single error line as a constant, validates it first — 1–200 characters, a single line, no surrounding whitespace, no trailing newline — then creates `/output` with `mkdirSync` and writes exactly that line to `/output/entry.txt`. It then reads the file back and verifies the bytes on disk equal the line exactly and still satisfy the same rules, failing loudly if the write truncated, re-encoded, or altered anything. It makes no network access and reads nothing outside this repository, so running it twice produces a byte-identical file.
 
 ## Competition
 

@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 // Say What Actually Broke — one single-line error message.
 // The line names the real failure (a declined card), says what to do
@@ -19,4 +19,22 @@ if (ENTRY !== ENTRY.trim()) {
 
 mkdirSync("/output", { recursive: true });
 writeFileSync("/output/entry.txt", ENTRY, "utf8");
+
+// Read back what actually landed on disk and verify it byte-for-byte:
+// a write that silently truncates, re-encodes, or appends a newline
+// would otherwise ship a file that no longer matches the validated line.
+const written = readFileSync("/output/entry.txt", "utf8");
+if (written !== ENTRY) {
+  throw new Error("Verification failed: /output/entry.txt does not match the entry.");
+}
+if (written.length < 1 || written.length > 200) {
+  throw new Error(`Verification failed: written entry is ${written.length} characters, not 1-200.`);
+}
+if (written.includes("\n") || written.includes("\r")) {
+  throw new Error("Verification failed: written entry is not a single line.");
+}
+if (written !== written.trim()) {
+  throw new Error("Verification failed: written entry has surrounding whitespace.");
+}
+
 console.log(`Wrote /output/entry.txt (${ENTRY.length} characters).`);
